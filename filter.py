@@ -33,7 +33,7 @@ def get_filtered_df(paths):
     nigerian_clinical = pd.read_csv('/home/t.cri.awoodard/indel-filtering/WABCS_final_IHC_2019-06-14.csv')
 
     result = None
-    columns = ['CHROM', 'POS', 'REF', 'ALT', 'FILTER', 'SAMPLE', 'QUAL', 'RACE', 'ER status', 'PR status', 'HER2 status']
+    columns = ['CHROM', 'POS', 'REF', 'ALT', 'FILTER', 'SAMPLE', 'QUAL', 'RACE', 'ER status', 'PR status', 'HER2 status', 'filter']
     samples = [path.split('/')[5] for path in paths]
 
     for path, sample in zip(paths, samples):
@@ -43,6 +43,9 @@ def get_filtered_df(paths):
         sample_index = df.set_index(keys).index
 
         df.loc[(sample_index.isin(pon_index)) & (df.FILTER == 'PASS'), 'FILTER'] = 'pseudo PON'
+        df['filter'] = 'pass'
+        df.loc[df.FILTER == 'pseudo PON', 'filter'] = 'fails pseudo PON'
+        df.loc[(df.FILTER != 'pseudo PON') & (df.FILTER != 'PASS'), 'filter'] = 'fail'
 
         df['RACE'] = 'nigerian'
         for row in race_map.iterrows(): # TODO: very inefficient-- eliminate this loop
@@ -69,8 +72,8 @@ def get_filtered_df(paths):
     output = '/scratch/t.cri.awoodard/indel-filtering/filtered_df_{}.pkl'.format('_'.join(samples))
     pd.to_pickle(result, output)
 
-    for path in paths:
-        os.unlink(path)
+    # for path in paths:
+    #     os.unlink(path)
 
     return output
 
