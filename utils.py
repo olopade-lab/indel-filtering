@@ -1,6 +1,22 @@
+import time
 import gzip
 import io
+
 import pandas as pd
+import pyarrow.parquet as pq
+
+def read_parquet(path):
+    """Read a parquet file and return a dataframe.
+
+    For some reason this is significantly faster than `pd.read_parquet`.
+    """
+    start = time.time()
+    parquet_file = pq.ParquetFile(path)
+    table = parquet_file.read()
+    df = table.to_pandas()
+    print('read {} in {:.1f} seconds'.format(path, time.time() - start))
+
+    return df
 
 def read_vcf(
         path,
