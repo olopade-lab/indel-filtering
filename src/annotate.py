@@ -125,6 +125,9 @@ dbsnp_index = dbsnp.set_index(keys).index
 genome1k = read_parquet('/scratch/t.cri.awoodard/indel-filtering/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.parquet')
 genome1k_index = genome1k.set_index(keys).index
 
+cosmic = read_parquet('/scratch/t.cri.awoodard/indel-filtering/CosmicCodingMuts.parquet')
+cosmic_index = cosmic.set_index(keys).index
+
 sample_index = df.set_index(keys).index
 
 df['pseudo PON'] = 'pass'
@@ -135,5 +138,8 @@ df.loc[sample_index.isin(dbsnp_index), 'dbsnp'] = 'fail'
 
 df['genomes1k'] = 'pass'
 df.loc[sample_index.isin(genome1k_index), 'genomes1k'] = 'fail'
+
+df['cosmic'] = 'not included'
+df.loc[sample_index.isin(cosmic_index), 'cosmic'] = 'included'
 
 df.to_parquet('/scratch/t.cri.awoodard/indel-filtering/annotations.parquet')
